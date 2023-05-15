@@ -31,7 +31,7 @@ validate_action() {
 
 # This function sets up all required variables
 setup_env() {
-  export app_name='GW'
+  export app_name='AS'
   export app_environment=$1
   mn_stack_name=$2
   export is_maintenance='true'

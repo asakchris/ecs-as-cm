@@ -22,7 +22,7 @@ validate_input_stack_name() {
 
 # This function sets up all required variables
 setup_env() {
-  export app_name='GW'
+  export app_name='AS'
   export app_environment=$1
   echo "app_environment: $app_environment, app_name: $app_name"
 

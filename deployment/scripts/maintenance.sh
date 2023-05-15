@@ -20,7 +20,7 @@ validate_action() {
 
 # This function sets up all required variables
 setup_env() {
-  export app_name='GW'
+  export app_name='AS'
   export app_environment=$1
   export is_maintenance='true'
   action=$2
