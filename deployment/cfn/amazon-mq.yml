@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: This stack creates all required security groups
+Parameters:
+  Environment:
+    Type: String
+    Description: Environment Name (DEV)
+    AllowedValues: [ 'DEV' ]
+  Platform:
+    Type: String
+    Default: 'AS'
+    Description: Platform Name
+  VpcStackName:
+    Type: String
+    Description: Name of the stack which is used to create VPC and Subnets
+  SecurityGroupStackName:
+    Type: String
+    Description: Name of the stack used to create security group
+  AmazonMQBrokerUser:
+    Description: The user to access the Amazon MQ broker
+    Type: String
+    Default: admin
+    MinLength: 2
+    ConstraintDescription: The Amazon MQ broker user is required!
+  AmazonMQBrokerPassword:
+    Description: The password to access the Amazon MQ broker. Min 12 characters
+    Type: String
+    Default: admin
+    MinLength: 12
+    ConstraintDescription: The Amazon MQ broker password is required!
+    NoEcho: true
+Resources:
+  AmazonMQBroker:
+    Type: AWS::AmazonMQ::Broker
+    Properties:
+      BrokerName: !Sub '${Environment}-${Platform}-AMQ'
+      EngineType: ActiveMQ
+      EngineVersion: 5.17.2
+      HostInstanceType: mq.t2.micro
+      DeploymentMode: SINGLE_INSTANCE
+      PubliclyAccessible: true
+      AutoMinorVersionUpgrade: false
+      SecurityGroups:
+        - Fn::ImportValue: !Join [ ':', [ !Ref 'SecurityGroupStackName', 'AmazonMQSecurityGroupId' ] ]
+      SubnetIds:
+        - Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'PublicSubnetOne' ] ]
+        - Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'PublicSubnetTwo' ] ]
+      Logs:
+        Audit: true
+        General: true
+      Users:
+        - ConsoleAccess: true
+          Groups:
+            - !Sub '${Environment}-${Platform}-GROUP-1'
+          Username: !Ref 'AmazonMQBrokerUser'
+          Password: !Ref 'AmazonMQBrokerPassword'
+Outputs:
+  AmazonMQBrokerId:
+    Description: Amazon MQ Broker Id
+    Value: !Ref 'AmazonMQBroker'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'AmazonMQBrokerId' ] ]
+  AmazonMQBrokerOpenWireEndpoints:
+    Description: Amazon MQ Broker OpenWireEndpoints
+    Value: !GetAtt 'AmazonMQBroker.OpenWireEndpoints'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'AmazonMQBrokerOpenWireEndpoints' ] ]

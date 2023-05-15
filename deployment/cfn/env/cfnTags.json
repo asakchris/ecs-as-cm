@@ -1,0 +1,5 @@
+{
+  "Name": "${p_cfn_stack_name}",
+  "Owner": "GW",
+  "Environment": "${app_environment}"
+}

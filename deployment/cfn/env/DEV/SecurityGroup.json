@@ -1,0 +1,4 @@
+{
+  "Environment": "${app_environment}",
+  "VpcStackName": "${app_environment}-${app_name}-VPC"
+}

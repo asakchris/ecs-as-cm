@@ -1,0 +1,35 @@
+{
+  "cfnTagsFile": "${cfn_dir}/env/cfnTags.json",
+  "stacks": [
+    {
+      "groupName": "vpc",
+      "groupStacks": [
+        {
+          "stackName": "${app_environment}-${app_name}-VPC",
+          "templateFile": "${cfn_dir}/vpc.yml",
+          "paramFile": "${cfn_dir}/env/${app_environment}/Vpc.json"
+        }
+      ]
+    },
+    {
+      "groupName": "securityGroup",
+      "groupStacks": [
+        {
+          "stackName": "${app_environment}-${app_name}-SECURITY-GROUP",
+          "templateFile": "${cfn_dir}/security-group.yml",
+          "paramFile": "${cfn_dir}/env/${app_environment}/SecurityGroup.json"
+        }
+      ]
+    },
+    {
+      "groupName": "amazonMq",
+      "groupStacks": [
+        {
+          "stackName": "${app_environment}-${app_name}-AMQ",
+          "templateFile": "${cfn_dir}/amazon-mq.yml",
+          "paramFile": "${cfn_dir}/env/${app_environment}/AmazonMq.json"
+        }
+      ]
+    }
+  ]
+}

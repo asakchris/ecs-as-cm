@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: This stack creates all required security groups
+Parameters:
+  Environment:
+    Type: String
+    Description: Environment Name (DEV)
+    AllowedValues: [ 'DEV' ]
+  Platform:
+    Type: String
+    Default: 'AS'
+    Description: Platform Name
+  VpcStackName:
+    Type: String
+    Description: Name of the stack which is used to create VPC and Subnets
+Resources:
+  AmazonMQSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: AMAZON-MQ-SG
+      GroupDescription: Limits security group ingress and egress traffic for the Amazon MQ instance
+      VpcId:
+        Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'VPCId' ] ]
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8162
+          ToPort: 8162
+          CidrIp:
+            Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'VPCCidrBlock' ] ]
+        - IpProtocol: tcp
+          FromPort: 61617
+          ToPort: 61617
+          CidrIp:
+            Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'VPCCidrBlock' ] ]
+        - IpProtocol: tcp
+          FromPort: 5671
+          ToPort: 5671
+          CidrIp:
+            Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'VPCCidrBlock' ] ]
+        - IpProtocol: tcp
+          FromPort: 61614
+          ToPort: 61614
+          CidrIp:
+            Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'VPCCidrBlock' ] ]
+        - IpProtocol: tcp
+          FromPort: 8883
+          ToPort: 8883
+          CidrIp:
+            Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'VPCCidrBlock' ] ]
+Outputs:
+  AmazonMQSecurityGroup:
+    Description: Container Security Group Id
+    Value: !Ref 'AmazonMQSecurityGroup'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'AmazonMQSecurityGroupId' ] ]
