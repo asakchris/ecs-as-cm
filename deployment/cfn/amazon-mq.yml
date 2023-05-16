@@ -48,7 +48,7 @@ Resources:
       Users:
         - ConsoleAccess: true
           Groups:
-            - !Sub '${Environment}-${Platform}-GROUP-1'
+            - 'GROUP-1'
           Username: !Ref 'AmazonMQBrokerUser'
           Password: !Ref 'AmazonMQBrokerPassword'
 Outputs:
