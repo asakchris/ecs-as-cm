@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: This stack creates all required security groups
+Parameters:
+  Environment:
+    Type: String
+    Description: Environment Name (DEV)
+    AllowedValues: [ 'DEV' ]
+  Platform:
+    Type: String
+    Default: 'AS'
+    Description: Platform Name
+Resources:
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${Environment}-${Platform}-ECS-TASK-EXEC-ROLE'
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ ecs-tasks.amazonaws.com ]
+            Action: [ 'sts:AssumeRole' ]
+      Path: /
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
+  ECSTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${Environment}-${Platform}-ECS-TASK-ROLE'
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ ecs-tasks.amazonaws.com ]
+            Action: [ 'sts:AssumeRole' ]
+      Path: /
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/CloudWatchFullAccess'
+Outputs:
+  ECSTaskExecutionRole:
+    Description: ARN of the ECS task execution role
+    Value: !GetAtt 'ECSTaskExecutionRole.Arn'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ECSTaskExecutionRoleArn' ] ]
+  ECSTaskRole:
+    Description: ARN of the ECS task role
+    Value: !GetAtt 'ECSTaskRole.Arn'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ECSTaskRoleArn' ] ]

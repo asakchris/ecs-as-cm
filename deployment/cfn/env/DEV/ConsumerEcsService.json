@@ -1,0 +1,9 @@
+{
+  "Environment": "${app_environment}",
+  "RoleStackName": "${app_environment}-${app_name}-ROLE",
+  "AmqStackName": "${app_environment}-${app_name}-AMQ",
+  "EcsClusterStackName": "${app_environment}-${app_name}-ECS-CLUSTER",
+  "VpcStackName": "${app_environment}-${app_name}-VPC",
+  "SecurityGroupStackName": "${app_environment}-${app_name}-SECURITY-GROUP",
+  "ImageVersion": "$image_version"
+}

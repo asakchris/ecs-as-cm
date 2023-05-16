@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: This stack create ECS Cluster
+Parameters:
+  Environment:
+    Type: String
+    Description: Environment Name (DEV)
+    AllowedValues: [ 'DEV' ]
+  Platform:
+    Type: String
+    Default: 'AS'
+    Description: Platform Name
+Resources:
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub '${Environment}-${Platform}-ECS-CLUSTER'
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+Outputs:
+  EcsClusterName:
+    Description: The name of ECS cluster
+    Value: !Ref 'ECSCluster'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EcsClusterName' ] ]
+  EcsClusterArn:
+    Description: The ARN of ECS cluster
+    Value: !GetAtt 'ECSCluster.Arn'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EcsClusterNameArn' ] ]

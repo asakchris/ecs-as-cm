@@ -12,22 +12,52 @@
       ]
     },
     {
-      "groupName": "securityGroup",
+      "groupName": "securityGroupAndRole",
       "groupStacks": [
         {
           "stackName": "${app_environment}-${app_name}-SECURITY-GROUP",
           "templateFile": "${cfn_dir}/security-group.yml",
           "paramFile": "${cfn_dir}/env/${app_environment}/SecurityGroup.json"
+        },
+        {
+          "stackName": "${app_environment}-${app_name}-ROLE",
+          "templateFile": "${cfn_dir}/role.yml",
+          "paramFile": "${cfn_dir}/env/${app_environment}/Role.json"
         }
       ]
     },
     {
-      "groupName": "amazonMq",
+      "groupName": "amazonMqLoadBalancerAndEcsCluster",
       "groupStacks": [
         {
           "stackName": "${app_environment}-${app_name}-AMQ",
           "templateFile": "${cfn_dir}/amazon-mq.yml",
           "paramFile": "${cfn_dir}/env/${app_environment}/AmazonMq.json"
+        },
+        {
+          "stackName": "${app_environment}-${app_name}-LB",
+          "templateFile": "${cfn_dir}/load-balancer.yml",
+          "paramFile": "${cfn_dir}/env/${app_environment}/LoadBalancer.json"
+        },
+        {
+          "stackName": "${app_environment}-${app_name}-ECS-CLUSTER",
+          "templateFile": "${cfn_dir}/ecs-cluster.yml",
+          "paramFile": "${cfn_dir}/env/${app_environment}/EcsCluster.json"
+        }
+      ]
+    },
+    {
+      "groupName": "ecsServices",
+      "groupStacks": [
+        {
+          "stackName": "${app_environment}-${app_name}-PRODUCER-ECS-SERVICE",
+          "templateFile": "${cfn_dir}/producer-ecs-service.yml",
+          "paramFile": "${cfn_dir}/env/${app_environment}/ProducerEcsService.json"
+        },
+        {
+          "stackName": "${app_environment}-${app_name}-CONSUMER-ECS-SERVICE",
+          "templateFile": "${cfn_dir}/consumer-ecs-service.yml",
+          "paramFile": "${cfn_dir}/env/${app_environment}/ConsumerEcsService.json"
         }
       ]
     }

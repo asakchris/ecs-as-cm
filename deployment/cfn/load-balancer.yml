@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: This stack creates all required load balancers
+Parameters:
+  Environment:
+    Type: String
+    Description: Environment Name (DEV)
+    AllowedValues: [ 'DEV' ]
+  Platform:
+    Type: String
+    Default: 'AS'
+    Description: Platform Name
+  VpcStackName:
+    Type: String
+    Description: Name of the stack which is used to create VPC and Subnets
+  SecurityGroupStackName:
+    Type: String
+    Description: Name of the stack used to create Security Group
+Resources:
+  AppLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub '${Environment}-${Platform}-PUBLIC-ALB'
+      Type: application
+      Scheme: internal
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: '60'
+      Subnets:
+        - Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'PublicSubnetOne' ] ]
+        - Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'PublicSubnetTwo' ] ]
+      SecurityGroups:
+        - Fn::ImportValue: !Join [ ':', [ !Ref 'SecurityGroupStackName', 'LoadBalancerSecurityGroupId' ] ]
+
+  AppLoadBalancerListenerHttp:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    DependsOn:
+      - AppLoadBalancer
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref 'AppLoadBalancerHttpDummyTG'
+          Type: 'forward'
+      LoadBalancerArn: !Ref 'AppLoadBalancer'
+      Port: 80
+      Protocol: HTTP
+
+  AppLoadBalancerHttpDummyTG:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub '${Environment}-${Platform}-DUMMY-TG'
+      HealthCheckIntervalSeconds: 150
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 120
+      HealthyThresholdCount: 2
+      Port: 80
+      Protocol: HTTP
+      UnhealthyThresholdCount: 2
+      VpcId:
+        Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'VPCId' ] ]
+
+  ProducerTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub '${Environment}-${Platform}-PRODUCER'
+      HealthCheckIntervalSeconds: 150
+      HealthCheckPath: /actuator/health
+      HealthCheckPort: 8081
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 120
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 2
+      TargetType: ip
+      Port: 8080
+      Protocol: HTTP
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 60
+      VpcId:
+        Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'VPCId' ] ]
+  ProducerLoadBalancerRuleHttp:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - TargetGroupArn: !Ref 'ProducerTargetGroup'
+          Type: 'forward'
+      Conditions:
+        - Field: path-pattern
+          Values: [ '/**' ]
+      ListenerArn: !Ref AppLoadBalancerListenerHttp
+      Priority: 1
+
+Outputs:
+  LoadBalancerDNS:
+    Description: Application Load Balancer DNS Name
+    Value: !GetAtt 'AppLoadBalancer.DNSName'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'LoadBalancerDNS' ] ]
+  ProducerTargetGroup:
+    Description: Producer target group arn
+    Value: !Ref ProducerTargetGroup
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ProducerTargetGroupArn' ] ]

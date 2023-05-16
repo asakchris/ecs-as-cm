@@ -1,0 +1,121 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: This stack creates consumer services task definition and service
+Parameters:
+  Environment:
+    Type: String
+    Description: Environment Name (DEV)
+    AllowedValues: [ 'DEV' ]
+  Platform:
+    Type: String
+    Default: 'AS'
+    Description: Platform Name
+  AppName:
+    Type: String
+    Default: 'CONSUMER'
+    Description: Application Name
+  AmqStackName:
+    Type: String
+    Description: Name of the stack which is used to create Amazon MQ
+  RoleStackName:
+    Type: String
+    Description: Name of the stack which is used to create Roles
+  EcsClusterStackName:
+    Type: String
+    Description: Name of the stack which is used to create ECS cluster
+  VpcStackName:
+    Type: String
+    Description: Name of the stack which is used to create VPC and Subnets
+  SecurityGroupStackName:
+    Type: String
+    Description: Name of the stack used to create security group
+  ImageVersion:
+    Type: String
+    Description: Version of the docker image
+Resources:
+  # Cloud watch log group to which container send logs
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/ECS/${Environment}/${Platform}/${AppName}'
+      RetentionInDays: 1
+
+  # The task definition. This is a simple metadata description of what container to run,
+  # and what resource requirements it has.
+  ECSTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub '${Environment}-${Platform}-${AppName}-TD'
+      Cpu: 512
+      Memory: 1024
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn:
+        Fn::ImportValue: !Join [ ':', [ !Ref 'RoleStackName', 'ECSTaskExecutionRoleArn' ] ]
+      TaskRoleArn:
+        Fn::ImportValue: !Join [ ':', [ !Ref 'RoleStackName', 'ECSTaskRoleArn' ] ]
+      ContainerDefinitions:
+        - Name: !Sub '${Environment}-${Platform}-${AppName}-CONTAINER'
+          Image: !Sub 'kamaraj/ecs-as-cm-consumer:${ImageVersion}'
+          Essential: true
+          PortMappings:
+            - ContainerPort: 8080
+            - ContainerPort: 8081
+          Environment:
+            - Name: APP_BROKER_URL
+              Value:
+                Fn::ImportValue: !Join [ ':', [ !Ref 'AmqStackName', 'AmazonMQBrokerOpenWireEndpoints' ] ]
+            - Name: APP_BROKER_USER
+              Value: admin
+            - Name: APP_BROKER_PWD
+              Value: KjKgX6676xUfm1385
+            - Name: JAVA_OPTS
+              Value: -XshowSettings:vm -XX:MetaspaceSize=64M -XX:MaxMetaspaceSize=128M -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError -XX:+UseStringDeduplication -XX:G1PeriodicGCSystemLoadThreshold=0.5 -XX:G1PeriodicGCInterval=210000 -XX:-G1PeriodicGCInvokesConcurrent -Dspring.jmx.enabled=false -Duser.timezone=UTC -Duser.country=US -Duser.language=en
+          HealthCheck:
+            Command: [ "CMD-SHELL", "curl -k --fail https://localhost:8081/actuator/health || exit 1" ]
+            Interval: 120
+            Retries: 3
+            StartPeriod: 120
+            Timeout: 60
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref LogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+
+  # Service is a resource which allows running multiple copies of a type of task, and gather their logs and metrics,
+  # as well as monitor the number of running tasks and replace any that have crashed
+  ECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: !Sub '${Environment}-${Platform}-${AppName}-SERVICE'
+      Cluster:
+        Fn::ImportValue: !Join [ ':', [ !Ref 'EcsClusterStackName', 'EcsClusterName' ] ]
+      LaunchType: FARGATE
+      PlatformVersion: 1.4.0
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+      DesiredCount: 1
+      TaskDefinition: !Ref ECSTaskDefinition
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - Fn::ImportValue: !Join [ ':', [ !Ref 'SecurityGroupStackName', 'ContainerSecurityGroupId' ] ]
+          Subnets:
+            - Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'PrivateSubnetOne' ] ]
+            - Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'PrivateSubnetTwo' ] ]
+Outputs:
+  ClusterName:
+    Description: Name of the ECS cluster
+    Value:
+      Fn::ImportValue: !Join [ ':', [ !Ref 'EcsClusterStackName', 'EcsClusterName' ] ]
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ClusterName' ] ]
+  ServiceName:
+    Description: Name of the ECS Service
+    Value: !GetAtt 'ECSService.Name'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ServiceName' ] ]

@@ -24,31 +24,79 @@ Resources:
         - IpProtocol: tcp
           FromPort: 8162
           ToPort: 8162
-          CidrIp:
-            Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'VPCCidrBlock' ] ]
+          CidrIp: '0.0.0.0/0'
         - IpProtocol: tcp
           FromPort: 61617
           ToPort: 61617
-          CidrIp:
-            Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'VPCCidrBlock' ] ]
+          CidrIp: '0.0.0.0/0'
         - IpProtocol: tcp
           FromPort: 5671
           ToPort: 5671
-          CidrIp:
-            Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'VPCCidrBlock' ] ]
+          CidrIp: '0.0.0.0/0'
         - IpProtocol: tcp
           FromPort: 61614
           ToPort: 61614
-          CidrIp:
-            Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'VPCCidrBlock' ] ]
+          CidrIp: '0.0.0.0/0'
         - IpProtocol: tcp
           FromPort: 8883
           ToPort: 8883
-          CidrIp:
-            Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'VPCCidrBlock' ] ]
+          CidrIp: '0.0.0.0/0'
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-${Platform}-AMQ-SG'
+  LoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: LOAD-BALANCER-SG
+      GroupDescription: Access to the public facing load balancer
+      VpcId:
+        Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'VPCId' ] ]
+      SecurityGroupIngress:
+        # Allow access to ALB from anywhere on the internet
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: '0.0.0.0/0'
+          Description: Allow HTTP
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIpv6: '::/0'
+          Description: Allow HTTP
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-${Platform}-ALB-SG'
+  ContainerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for the containers
+      VpcId:
+        Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'VPCId' ] ]
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-${Platform}-CONTAINER-SG'
+  ContainerSecurityGroupIngressFromLB:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Ingress from the Load balancer
+      GroupId: !Ref 'ContainerSecurityGroup'
+      IpProtocol: tcp
+      FromPort: 8080
+      ToPort: 8081
+      SourceSecurityGroupId: !Ref 'LoadBalancerSecurityGroup'
 Outputs:
   AmazonMQSecurityGroup:
-    Description: Container Security Group Id
+    Description: Amazon MQ Security Group Id
     Value: !Ref 'AmazonMQSecurityGroup'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'AmazonMQSecurityGroupId' ] ]
+  LoadBalancerSecurityGroup:
+    Description: Load Balancer Security Group Id
+    Value: !Ref 'LoadBalancerSecurityGroup'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'LoadBalancerSecurityGroupId' ] ]
+  ContainerSecurityGroup:
+    Description: Container Security Group Id
+    Value: !Ref 'ContainerSecurityGroup'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ContainerSecurityGroupId' ] ]
