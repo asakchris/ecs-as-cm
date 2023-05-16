@@ -1,0 +1,21 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Consumer" type="Application" factoryName="Application">
+    <envs>
+      <env name="APP_BROKER_URL" value="tcp://localhost:61616" />
+      <env name="APP_BROKER_USER" value="admin" />
+      <env name="APP_BROKER_PWD" value="admin" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="org.example.consumer.Application" />
+    <module name="consumer" />
+    <option name="VM_PARAMETERS" value="-Dserver.port=9010 -Dmanagement.server.port=9011" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="org.example.consumer.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

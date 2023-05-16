@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - env
+  endpoint:
+    health:
+      show-details: ALWAYS
+
+spring:
+  application:
+    name: Producer
+  activemq:
+    broker-url: ${APP_BROKER_URL}
+    user: ${APP_BROKER_USER}
+    password: ${APP_BROKER_PWD}
+
+app:
+  queues:
+    test-1:
+      name: test.one

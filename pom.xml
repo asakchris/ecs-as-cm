@@ -6,12 +6,76 @@
 
   <groupId>org.example</groupId>
   <artifactId>ecs-as-cm</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+  <modules>
+    <module>producer</module>
+    <module>consumer</module>
+  </modules>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.7.11</version>
+  </parent>
 
   <properties>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <java.version>17</java.version>
+    <docker-maven-plugin.version>0.42.0</docker-maven-plugin.version>
   </properties>
 
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <configuration>
+            <layers>
+              <enabled>true</enabled>
+            </layers>
+            <excludeDevtools>true</excludeDevtools>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>io.fabric8</groupId>
+          <artifactId>docker-maven-plugin</artifactId>
+          <version>${docker-maven-plugin.version}</version>
+          <configuration>
+            <verbose>all</verbose>
+            <logStdout>true</logStdout>
+            <images>
+              <image>
+                <name>kamaraj/ecs-as-cm-${project.artifactId}:${project.version}</name>
+                <build>
+                  <dockerFile>${project.basedir}/Dockerfile</dockerFile>
+                  <filter>false</filter>
+                  <noCache>true</noCache>
+                  <args>
+                    <ARTIFACT>target/${project.build.finalName}.${project.packaging}</ARTIFACT>
+                  </args>
+                </build>
+              </image>
+            </images>
+            <skip>true</skip>
+          </configuration>
+          <executions>
+            <execution>
+              <id>defaultBuild</id>
+              <goals>
+                <goal>build</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>defaultPush</id>
+              <phase>deploy</phase>
+              <goals>
+                <goal>push</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>
