@@ -3,5 +3,5 @@
   "VpcStackName": "${app_environment}-${app_name}-VPC",
   "SecurityGroupStackName": "${app_environment}-${app_name}-SECURITY-GROUP",
   "AmazonMQBrokerUser": "admin",
-  "AmazonMQBrokerPassword": "admin"
+  "AmazonMQBrokerPassword": "KjKgX667%6xU"
 }
