@@ -72,7 +72,7 @@ Resources:
             - Name: JAVA_OPTS
               Value: -XshowSettings:vm -XX:MetaspaceSize=64M -XX:MaxMetaspaceSize=128M -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError -XX:+UseStringDeduplication -XX:G1PeriodicGCSystemLoadThreshold=0.5 -XX:G1PeriodicGCInterval=210000 -XX:-G1PeriodicGCInvokesConcurrent -Dspring.jmx.enabled=false -Duser.timezone=UTC -Duser.country=US -Duser.language=en
           HealthCheck:
-            Command: [ "CMD-SHELL", "curl -k --fail https://localhost:8081/actuator/health || exit 1" ]
+            Command: [ "CMD-SHELL", "curl -k --fail http://localhost:8081/actuator/health || exit 1" ]
             Interval: 120
             Retries: 3
             StartPeriod: 120
