@@ -24,7 +24,6 @@ Parameters:
   AmazonMQBrokerPassword:
     Description: The password to access the Amazon MQ broker. Min 12 characters
     Type: String
-    Default: admin
     MinLength: 12
     ConstraintDescription: The Amazon MQ broker password is required!
     NoEcho: true
