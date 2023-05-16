@@ -59,6 +59,8 @@ Outputs:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'AmazonMQBrokerId' ] ]
   AmazonMQBrokerOpenWireEndpoints:
     Description: Amazon MQ Broker OpenWireEndpoints
-    Value: !GetAtt 'AmazonMQBroker.OpenWireEndpoints'
+    Value: !Join
+      - ','
+      - !GetAtt 'AmazonMQBroker.OpenWireEndpoints'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'AmazonMQBrokerOpenWireEndpoints' ] ]
