@@ -21,7 +21,7 @@ Resources:
     Properties:
       Name: !Sub '${Environment}-${Platform}-PUBLIC-ALB'
       Type: application
-      Scheme: internal
+      Scheme: internet-facing
       LoadBalancerAttributes:
         - Key: idle_timeout.timeout_seconds
           Value: '60'
