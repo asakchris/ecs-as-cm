@@ -120,12 +120,7 @@ Resources:
     Properties:
       RoleARN:
         Fn::ImportValue: !Join [ ':', [ !Ref 'RoleStackName', 'ECSAutoScalingRoleArn' ] ]
-      ResourceId:
-        Fn::Sub:
-          - 'service/${EcsClusterName}/{EcsServiceName}'
-          - EcsServiceName: !GetAtt [ ECSService, Name ]
-            EcsClusterName:
-              Fn::ImportValue: !Join [ ':', [ !Ref 'EcsClusterStackName', 'EcsClusterName' ] ]
+      ResourceId: !Join [ '', [ service/DEV-AS-ECS-CLUSTER/, !GetAtt [ ECSService, Name ] ] ]
       ServiceNamespace: ecs
       ScalableDimension: ecs:service:DesiredCount
       MinCapacity: !Ref TaskDesiredCount
