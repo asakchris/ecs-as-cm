@@ -131,7 +131,7 @@ Resources:
       MinCapacity: !Ref TaskDesiredCount
       MaxCapacity: !Ref TaskMaximumCount
 
-  # Scaling policy that targets the ECS service Average CPU utilization metric at 70%
+  # Scaling policy that targets the Average pending messages at 10
   ScalingPolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
