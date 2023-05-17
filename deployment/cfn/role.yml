@@ -47,8 +47,18 @@ Resources:
               Service: [ application-autoscaling.amazonaws.com ]
             Action: [ 'sts:AssumeRole' ]
       Path: /
-      ManagedPolicyArns:
-        - 'arn:aws:iam::aws:policy/aws-service-role/AWSApplicationAutoscalingECSServicePolicy'
+      Policies:
+        - PolicyName: !Sub '${Environment}-${Platform}-ECS-AUTO-SCALING-POLICY'
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'application-autoscaling:*'
+                  - 'cloudwatch:DescribeAlarms'
+                  - 'cloudwatch:PutMetricAlarm'
+                  - 'ecs:DescribeServices'
+                  - 'ecs:UpdateService'
+                Resource: '*'
 Outputs:
   ECSTaskExecutionRole:
     Description: ARN of the ECS task execution role
