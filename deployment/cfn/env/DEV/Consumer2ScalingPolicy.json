@@ -1,5 +1,5 @@
 {
-  "TargetValue": 5.0,
+  "TargetValue": 15.0,
   "ScaleOutCooldown": 120,
   "ScaleInCooldown": 120,
   "CustomizedMetricSpecification": {
