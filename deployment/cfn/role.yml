@@ -36,6 +36,19 @@ Resources:
       Path: /
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/CloudWatchFullAccess'
+  ECSAutoScalingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${Environment}-${Platform}-ECS-AUTO-SCALING-ROLE'
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ application-autoscaling.amazonaws.com ]
+            Action: [ 'sts:AssumeRole' ]
+      Path: /
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/aws-service-role/AWSApplicationAutoscalingECSServicePolicy'
 Outputs:
   ECSTaskExecutionRole:
     Description: ARN of the ECS task execution role
@@ -47,3 +60,8 @@ Outputs:
     Value: !GetAtt 'ECSTaskRole.Arn'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ECSTaskRoleArn' ] ]
+  ECSAutoScalingRole:
+    Description: ARN of the ECS Auto Scaling role
+    Value: !GetAtt 'ECSAutoScalingRole.Arn'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ECSAutoScalingRoleArn' ] ]

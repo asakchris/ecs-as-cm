@@ -31,6 +31,12 @@ Parameters:
   ImageVersion:
     Type: String
     Description: Version of the docker image
+  TaskDesiredCount:
+    Type: Number
+    Description: Number of instantiations of the specified task definition to place and keep running on the cluster
+  TaskMaximumCount:
+    Type: Number
+    Description: The maximum number of instance of the specified task definition to place and keep running on the cluster
 Resources:
   # Cloud watch log group to which container send logs
   LogGroup:
@@ -107,6 +113,44 @@ Resources:
           Subnets:
             - Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'PrivateSubnetOne' ] ]
             - Fn::ImportValue: !Join [ ':', [ !Ref 'VpcStackName', 'PrivateSubnetTwo' ] ]
+
+  # Scalable target for ECS service
+  ScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      RoleARN:
+        Fn::ImportValue: !Join [ ':', [ !Ref 'RoleStackName', 'ECSAutoScalingRoleArn' ] ]
+      ResourceId:
+        Fn::Sub:
+          - 'service/${EcsClusterName}/{EcsServiceName}'
+          - EcsServiceName: !GetAtt [ ECSService, Name ]
+            EcsClusterName:
+              Fn::ImportValue: !Join [ ':', [ !Ref 'EcsClusterStackName', 'EcsClusterName' ] ]
+      ServiceNamespace: ecs
+      ScalableDimension: ecs:service:DesiredCount
+      MinCapacity: !Ref TaskDesiredCount
+      MaxCapacity: !Ref TaskMaximumCount
+
+  # Scaling policy that targets the ECS service Average CPU utilization metric at 70%
+  ScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: !Sub '${Environment}-${Platform}-${AppName}-SCALING-POLICY'
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref ScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        CustomizedMetricSpecification:
+          Namespace: AWS/AmazonMQ
+          MetricName: QueueSize
+          Dimensions:
+            - Name: Broker
+              Value: DEV-AS-AMQ-1
+            - Name: Queue
+              Value: test.one
+          Statistic: Average
+        TargetValue: 10.0
+        ScaleInCooldown: 120
+        ScaleOutCooldown: 120
 Outputs:
   ClusterName:
     Description: Name of the ECS cluster
