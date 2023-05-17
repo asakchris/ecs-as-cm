@@ -5,5 +5,7 @@
   "EcsClusterStackName": "${app_environment}-${app_name}-ECS-CLUSTER",
   "VpcStackName": "${app_environment}-${app_name}-VPC",
   "SecurityGroupStackName": "${app_environment}-${app_name}-SECURITY-GROUP",
-  "ImageVersion": "$image_version"
+  "ImageVersion": "$image_version",
+  "TaskDesiredCount": "1",
+  "TaskMaximumCount": "5"
 }
