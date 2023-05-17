@@ -17,12 +17,21 @@ public class Controller {
 
   private final MessageProducer producer;
 
-  @GetMapping(path = "/send-messages")
+  @GetMapping(path = "/send-messages-1")
   @ResponseStatus(code = HttpStatus.OK)
-  public Map<String, String> produceMessages() {
-    log.info("Enter produceMessages");
+  public Map<String, String> produceMessages1() {
+    log.info("Enter produceMessages1");
     IntStream.rangeClosed(1, 10)
         .forEach(value -> producer.queue1());
+    return Map.of("message", "Messages sent successfully");
+  }
+
+  @GetMapping(path = "/send-messages-2")
+  @ResponseStatus(code = HttpStatus.OK)
+  public Map<String, String> produceMessages2() {
+    log.info("Enter produceMessages2");
+    IntStream.rangeClosed(1, 10)
+        .forEach(value -> producer.queue2());
     return Map.of("message", "Messages sent successfully");
   }
 }

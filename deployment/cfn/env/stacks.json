@@ -58,6 +58,11 @@
           "stackName": "${app_environment}-${app_name}-CONSUMER-ECS-SERVICE",
           "templateFile": "${cfn_dir}/consumer-ecs-service.yml",
           "paramFile": "${cfn_dir}/env/${app_environment}/ConsumerEcsService.json"
+        },
+        {
+          "stackName": "${app_environment}-${app_name}-CONSUMER2-ECS-SERVICE",
+          "templateFile": "${cfn_dir}/consumer2-ecs-service.yml",
+          "paramFile": "${cfn_dir}/env/${app_environment}/Consumer2EcsService.json"
         }
       ]
     }

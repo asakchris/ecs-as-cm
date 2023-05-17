@@ -1,0 +1,59 @@
+{
+  "TargetValue": 5.0,
+  "ScaleOutCooldown": 120,
+  "ScaleInCooldown": 120,
+  "CustomizedMetricSpecification": {
+    "Metrics": [
+      {
+        "Id": "m1",
+        "Label": "queue_size_avg_1m",
+        "ReturnData": false,
+        "MetricStat": {
+          "Metric": {
+            "Namespace": "AWS/AmazonMQ",
+            "MetricName": "QueueSize",
+            "Dimensions": [
+              {
+                "Name": "Broker",
+                "Value": "DEV-AS-AMQ-1"
+              },
+              {
+                "Name": "Queue",
+                "Value": "test.two"
+              }
+            ]
+          },
+          "Stat": "Average"
+        }
+      },
+      {
+        "Id": "m2",
+        "Label": "running_task_count_avg_1m",
+        "ReturnData": false,
+        "MetricStat": {
+          "Metric": {
+            "Namespace": "ECS/ContainerInsights",
+            "MetricName": "RunningTaskCount",
+            "Dimensions": [
+              {
+                "Name": "ClusterName",
+                "Value": "DEV-AS-ECS-CLUSTER"
+              },
+              {
+                "Name": "ServiceName",
+                "Value": "DEV-AS-CONSUMER2-SERVICE"
+              }
+            ]
+          },
+          "Stat": "Average"
+        }
+      },
+      {
+        "Id": "m3",
+        "Expression": "(m1-m2)/m2",
+        "Label": "msg_backlog_per_instance_avg_1m",
+        "ReturnData": true
+      }
+    ]
+  }
+}

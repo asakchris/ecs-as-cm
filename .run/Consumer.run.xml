@@ -7,7 +7,7 @@
     </envs>
     <option name="MAIN_CLASS_NAME" value="org.example.consumer.Application" />
     <module name="consumer" />
-    <option name="VM_PARAMETERS" value="-Dserver.port=9010 -Dmanagement.server.port=9011" />
+    <option name="VM_PARAMETERS" value="-Dserver.port=18613 -Dmanagement.server.port=18614" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="org.example.consumer.*" />

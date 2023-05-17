@@ -16,7 +16,7 @@ management:
 
 spring:
   application:
-    name: Producer
+    name: Consumer2
   activemq:
     broker-url: ${APP_BROKER_URL}
     user: ${APP_BROKER_USER}
@@ -24,7 +24,6 @@ spring:
 
 app:
   queues:
-    test-1:
-      name: test.one
     test-2:
-      name: test.two
+      name: test.two?consumer.prefetchSize=1
+      concurrency: 5

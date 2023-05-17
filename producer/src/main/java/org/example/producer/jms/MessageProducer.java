@@ -13,14 +13,24 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class MessageProducer {
   @Qualifier("queueOne")
-  private final Queue queue;
+  private final Queue queueOne;
+
+  @Qualifier("queueOne")
+  private final Queue queueTwo;
 
   private final JmsTemplate jmsTemplate;
 
   public void queue1() {
     log.info("Queue 1 producer started");
     String message = "Message generated at " + LocalDateTime.now();
-    jmsTemplate.convertAndSend(queue, message);
+    jmsTemplate.convertAndSend(queueOne, message);
     log.info("Queue 1 producer completed");
+  }
+
+  public void queue2() {
+    log.info("Queue 2 producer started");
+    String message = "Message generated at " + LocalDateTime.now();
+    jmsTemplate.convertAndSend(queueTwo, message);
+    log.info("Queue 2 producer completed");
   }
 }

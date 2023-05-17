@@ -1,16 +1,16 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Producer" type="Application" factoryName="Application">
+  <configuration default="false" name="Consumer2" type="Application" factoryName="Application">
     <envs>
       <env name="APP_BROKER_URL" value="tcp://localhost:61616" />
       <env name="APP_BROKER_USER" value="admin" />
       <env name="APP_BROKER_PWD" value="admin" />
     </envs>
-    <option name="MAIN_CLASS_NAME" value="org.example.producer.Application" />
-    <module name="producer" />
-    <option name="VM_PARAMETERS" value="-Dserver.port=18611 -Dmanagement.server.port=18612" />
+    <option name="MAIN_CLASS_NAME" value="org.example.consumer2.Application" />
+    <module name="consumer2" />
+    <option name="VM_PARAMETERS" value="-Dserver.port=18615 -Dmanagement.server.port=18616" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="org.example.producer.*" />
+        <option name="PATTERN" value="org.example.consumer2.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
